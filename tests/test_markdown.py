@@ -311,6 +311,21 @@ def test_text_in_equation_cell_is_kept() -> None:
     assert r"\text{(By definition of }\phi_{1}\text{)}" in markdown
 
 
+def test_special_characters_in_equation_cell_text_are_escaped() -> None:
+    html = r"""
+    <table class="ltx_equation ltx_eqn_table"><tr>
+        <td class="ltx_eqn_cell"><math><annotation encoding="application/x-tex">x</annotation></math>
+            <span class="ltx_text">a\b ^ ~ 50% {c} &amp; #_$</span></td>
+    </tr></table>
+    """
+
+    markdown = convert_fragment_to_markdown(html)
+
+    assert markdown == (
+        r"$$ x \text{a\textbackslash{}b \textasciicircum{} \textasciitilde{} 50\% \{c\} \& \#\_\$} $$"
+    )
+
+
 def test_empty_alignment_cells_keep_columns_in_place() -> None:
     """Trimmed from arXiv:1809.06452: a row led by an empty cell must not shift left."""
     markdown = convert_fragment_to_markdown(_ALIGNED_WITH_NOTES)

@@ -14,6 +14,7 @@ except ImportError as exc:  # pragma: no cover - runtime dependency check
 
 _EQUATION_TABLE_RE = re.compile(r"ltx_equationgroup|ltx_eqn_align|ltx_eqn_table")
 _EQUATION_PADDING_RE = re.compile(r"ltx_eqn_center_pad|ltx_eqn_eqno")
+_TEX_TEXT_ESCAPES = {"\\": r"\textbackslash{}", "^": r"\textasciicircum{}", "~": r"\textasciitilde{}"}
 
 
 def convert_html_to_markdown(html: str, *, remove_refs: bool = False, remove_toc: bool = False) -> str:
@@ -408,7 +409,7 @@ def _equation_cell_to_latex(cell: Tag) -> str:
             if node.find_parent("math"):
                 continue
             text = re.sub(r"\s+", " ", str(node))
-            escaped = re.sub(r"([{}$&#%_^~])", r"\\\1", text.replace("\\", r"\textbackslash{}"))
+            escaped = re.sub(r"[\\{}$&#%_^~]", lambda m: _TEX_TEXT_ESCAPES.get(m.group(), "\\" + m.group()), text)
             parts.append(f"\\text{{{escaped}}}" if text.strip() else " ")
         elif node.name == "math":
             latex_source = _math_to_latex(node)
